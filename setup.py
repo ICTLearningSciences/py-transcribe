@@ -23,6 +23,9 @@ setup(
     description="framework for synchronous batch speech-to-text transcription using backends like AWS, Watson, etc.",
     packages=packages,
     package_dir={'transcribe': 'transcribe'},
+    package_data={
+        "transcribe": ["py.typed"],
+    },
     install_requires=requirements,
     long_description=long_description,
     long_description_content_type='text/markdown',

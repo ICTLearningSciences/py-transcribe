@@ -7,6 +7,7 @@ include *.ini
 include *.py
 include *.rst
 include *.txt
+include *.typed
 include *.yml
 include *.yaml
 recursive-include bin   *.py *.bash *.sh
