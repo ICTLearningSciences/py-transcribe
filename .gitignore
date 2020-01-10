@@ -8,6 +8,7 @@ QuestionAnswerLog.csv
 .coverage.*
 .log
 .mypy_cache
+.pytest_cache
 .venv
 .vscode
 *.log
