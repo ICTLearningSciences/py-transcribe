@@ -16,10 +16,13 @@ def before_each_reset_modules_and_env():
 
 
 def test_it_creates_a_service_configured_by_env():
-    os.environ["TRANSCRIBE_MODULE_PATH"] = "tests.test_init_transcription_service.transcription_service_fake"
-    service = transcribe.init_transcription_service()
+    os.environ[
+        "TRANSCRIBE_MODULE_PATH"
+    ] = "tests.test_init_transcription_service.transcription_service_fake"
+    config = {"a": "b"}
+    service = transcribe.init_transcription_service(config=config)
     assert isinstance(service, transcribe.TranscriptionService)
-    service.get_init_service_mock().assert_called_once()
+    service.get_init_service_mock().assert_called_once_with(config)
 
 
 def test_it_raises_error_when_no_service_configured():
@@ -29,7 +32,10 @@ def test_it_raises_error_when_no_service_configured():
     except EnvironmentError as ex:
         ex_caught = ex
     assert isinstance(ex_caught, EnvironmentError)
-    assert str(ex_caught) == "missing required env 'TRANSCRIBE_MODULE_PATH' which should point to a TransciptionService implementation."
+    assert (
+        str(ex_caught)
+        == "missing required env 'TRANSCRIBE_MODULE_PATH' which should point to a TransciptionService implementation."
+    )
 
 
 def test_it_raises_when_registered_module_path_not_found():
@@ -43,11 +49,16 @@ def test_it_raises_when_registered_module_path_not_found():
 
 
 def test_it_raises_error_configured_module_path_fails_to_register_a_service_factory():
-    os.environ["TRANSCRIBE_MODULE_PATH"] = "tests.test_init_transcription_service.transcription_service_fails_to_register"
+    os.environ[
+        "TRANSCRIBE_MODULE_PATH"
+    ] = "tests.test_init_transcription_service.transcription_service_fails_to_register"
     ex_caught: RuntimeError = None
     try:
         transcribe.init_transcription_service()
     except RuntimeError as ex:
         ex_caught = ex
     assert isinstance(ex_caught, RuntimeError)
-    assert str(ex_caught) == "Module found for path tests.test_init_transcription_service.transcription_service_fails_to_register but no registered TranscriptionService factory. Perhaps the module is not calling register_transcription_service_factory from __init__.py?"
+    assert (
+        str(ex_caught)
+        == "Module found for path tests.test_init_transcription_service.transcription_service_fails_to_register but no registered TranscriptionService factory. Perhaps the module is not calling register_transcription_service_factory from __init__.py?"
+    )

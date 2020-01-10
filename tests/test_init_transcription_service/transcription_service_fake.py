@@ -1,10 +1,10 @@
-from typing import Callable, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 from transcribe import register_transcription_service_factory, TranscribeBatchResult, TranscribeJobRequest, TranscribeJobsUpdate, TranscriptionService
 from unittest.mock import Mock
 
 
 class FakeTranscriptionService(TranscriptionService):
-    def __init__(self):
+    def __init__(self, config: Dict[str, Any] = {}, **kwargs):
         self._init_service_mock = Mock()
         self._transcribe_mock = Mock()
 
@@ -14,8 +14,8 @@ class FakeTranscriptionService(TranscriptionService):
     def get_transcribe_mock(self) -> Mock:
         return self._transcribe_mock
 
-    def init_service(self) -> None:
-        self._init_service_mock()
+    def init_service(self, config: Dict[str, Any] = {}) -> None:
+        self._init_service_mock(config)
 
     def transcribe(
         self,

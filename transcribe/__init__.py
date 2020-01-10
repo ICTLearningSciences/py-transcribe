@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
 import enum
 from importlib import import_module
-import logging
 
 import os
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
@@ -225,7 +224,7 @@ def transcribe_requests_to_result(
 
 class TranscriptionService(ABC):
     @abstractmethod
-    def init_service(self) -> None:
+    def init_service(self, config: Dict[str, Any] = {}, **kwargs) -> None:
         raise NotImplementedError()
 
     @abstractmethod
@@ -245,17 +244,16 @@ __TRANSCRIPTION_SERVICE_FACTORY_BY_MODULE_PATH: Dict[
 
 
 def register_transcription_service_factory(
-    module_path: str, factory: Callable[[], TranscriptionService]
+    module_path: str, factory: Callable[..., TranscriptionService]
 ) -> None:
     global __TRANSCRIPTION_SERVICE_FACTORY_BY_MODULE_PATH
     __TRANSCRIPTION_SERVICE_FACTORY_BY_MODULE_PATH[module_path] = factory
 
 
-def init_transcription_service(module_path: str = "") -> TranscriptionService:
+def init_transcription_service(
+    module_path: str = "", config: Dict[str, Any] = {}
+) -> TranscriptionService:
     global __TRANSCRIPTION_SERVICE_FACTORY_BY_MODULE_PATH
-    logging.warning(
-        f"\n\n\nlen(__TRANSCRIPTION_SERVICE_FACTORY_BY_MODULE_PATH)={len(__TRANSCRIPTION_SERVICE_FACTORY_BY_MODULE_PATH)}"
-    )
     effective_module_path = module_path or os.environ.get("TRANSCRIBE_MODULE_PATH")
     if (
         not effective_module_path
@@ -276,5 +274,5 @@ def init_transcription_service(module_path: str = "") -> TranscriptionService:
     fac = __TRANSCRIPTION_SERVICE_FACTORY_BY_MODULE_PATH[effective_module_path]
     service = fac()
     assert isinstance(service, TranscriptionService)
-    service.init_service()
+    service.init_service(config=config)
     return service

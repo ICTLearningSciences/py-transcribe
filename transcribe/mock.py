@@ -62,7 +62,7 @@ class MockTranscribeCallFixture:
 
 
 def deep_copy_mock_transcribe_call_fixture(
-    mock_transcribe_call_fixture: MockTranscribeCallFixture
+    mock_transcribe_call_fixture: MockTranscribeCallFixture,
 ) -> MockTranscribeCallFixture:
     return MockTranscribeCallFixture(**mock_transcribe_call_fixture.to_dict())
 
