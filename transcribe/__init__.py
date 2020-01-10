@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
 import enum
 from importlib import import_module
+import logging
 
 import os
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
@@ -238,8 +239,42 @@ class TranscriptionService(ABC):
         raise NotImplementedError()
 
 
-def init_transcription_service() -> TranscriptionService:
-    m = import_module(f"transcribe.aws")
-    s = m.WatsonTranscriptionService()  # type: ignore
-    s.init_service()
-    return s
+__TRANSCRIPTION_SERVICE_FACTORY_BY_MODULE_PATH: Dict[
+    str, Callable[[], TranscriptionService]
+] = {}
+
+
+def register_transcription_service_factory(
+    module_path: str, factory: Callable[[], TranscriptionService]
+) -> None:
+    global __TRANSCRIPTION_SERVICE_FACTORY_BY_MODULE_PATH
+    __TRANSCRIPTION_SERVICE_FACTORY_BY_MODULE_PATH[module_path] = factory
+
+
+def init_transcription_service(module_path: str = "") -> TranscriptionService:
+    global __TRANSCRIPTION_SERVICE_FACTORY_BY_MODULE_PATH
+    logging.warning(
+        f"\n\n\nlen(__TRANSCRIPTION_SERVICE_FACTORY_BY_MODULE_PATH)={len(__TRANSCRIPTION_SERVICE_FACTORY_BY_MODULE_PATH)}"
+    )
+    effective_module_path = module_path or os.environ.get("TRANSCRIBE_MODULE_PATH")
+    if (
+        not effective_module_path
+        and len(__TRANSCRIPTION_SERVICE_FACTORY_BY_MODULE_PATH) == 1
+    ):
+        effective_module_path = next(
+            iter(__TRANSCRIPTION_SERVICE_FACTORY_BY_MODULE_PATH.keys())
+        )
+    if not effective_module_path:
+        raise EnvironmentError(
+            "missing required env 'TRANSCRIBE_MODULE_PATH' which should point to a TransciptionService implementation."
+        )
+    import_module(effective_module_path)
+    if effective_module_path not in __TRANSCRIPTION_SERVICE_FACTORY_BY_MODULE_PATH:
+        raise RuntimeError(
+            f"Module found for path {effective_module_path} but no registered TranscriptionService factory. Perhaps the module is not calling register_transcription_service_factory from __init__.py?"
+        )
+    fac = __TRANSCRIPTION_SERVICE_FACTORY_BY_MODULE_PATH[effective_module_path]
+    service = fac()
+    assert isinstance(service, TranscriptionService)
+    service.init_service()
+    return service
