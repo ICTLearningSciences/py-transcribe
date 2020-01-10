@@ -16,7 +16,7 @@ class MissingRequiredEnvVarError(Exception):
     pass
 
 
-def require_env(n: str, v: str) -> str:
+def require_env(n: str, v: str = "") -> str:
     v = v or os.environ.get(n, "")
     if not v:
         raise MissingRequiredEnvVarError(f"missing required env var '{n}'")
