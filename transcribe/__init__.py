@@ -205,12 +205,12 @@ def copy_shallow(r: TranscribeBatchResult) -> TranscribeBatchResult:
     )
 
 
-def transcribe_jobs_to_result(jobs: List[TranscribeJob]) -> TranscribeBatchResult:
+def transcribe_jobs_to_result(jobs: Iterable[TranscribeJob]) -> TranscribeBatchResult:
     return TranscribeBatchResult(transcribeJobsById={j.get_fq_id(): j for j in jobs})
 
 
 def transcribe_requests_to_result(
-    transcribe_requests: List[TranscribeJobRequest],
+    transcribe_requests: Iterable[TranscribeJobRequest],
     initial_status: TranscribeJobStatus = TranscribeJobStatus.NONE,
 ) -> TranscribeBatchResult:
     return TranscribeBatchResult(
@@ -226,7 +226,7 @@ class TranscriptionService(ABC):
     @abstractmethod
     def transcribe(
         self,
-        transcribe_requests: List[TranscribeJobRequest],
+        transcribe_requests: Iterable[TranscribeJobRequest],
         batch_id: str = "",
         poll_interval=5,
         on_update: Optional[Callable[[TranscribeJobsUpdate], None]] = None,

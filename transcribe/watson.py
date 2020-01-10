@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import Callable, List, Optional
+from typing import Callable, Iterable, Optional
 from uuid import uuid1
 
 from watson_developer_cloud import SpeechToTextV1
@@ -58,7 +58,7 @@ class WatsonTranscriptionService(TranscriptionService):
 
     def transcribe(
         self,
-        transcribe_requests: List[TranscribeJobRequest],
+        transcribe_requests: Iterable[TranscribeJobRequest],
         batch_id: str = "",
         poll_interval=5,
         on_update: Optional[Callable[[TranscribeJobsUpdate], None]] = None,
