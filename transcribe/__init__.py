@@ -39,6 +39,7 @@ class TranscribeJob:
     jobId: str
     sourceFile: str
     mediaFormat: str
+    languageCode: str = "en-US"
     status: TranscribeJobStatus = TranscribeJobStatus.NONE
     transcript: str = ""
     error: str = ""
@@ -63,30 +64,28 @@ class TranscribeJob:
 
 @dataclass
 class TranscribeJobRequest:
-    batchId: str
     jobId: str
     sourceFile: str
     mediaFormat: str = ""
-    language_code: str = ""
+    languageCode: str = "en-US"
 
-    def get_fq_id(self) -> str:
-        return f"{self.batchId}-{self.jobId}"
+    def get_language_code(self, default_language_code: str = "en-US") -> str:
+        return self.languageCode or default_language_code
 
     def get_media_format(self):
         return self.mediaFormat or os.path.splitext(self.sourceFile)[1][1:]
-
-    def get_language_code(self, default_language_code: str = "en-US") -> str:
-        return self.language_code or default_language_code
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
     def to_job(
-        self, status: TranscribeJobStatus = TranscribeJobStatus.NONE
+        self, batch_id: str, status: TranscribeJobStatus = TranscribeJobStatus.NONE
     ) -> TranscribeJob:
         return TranscribeJob(
-            batchId=self.batchId,
+            batchId=batch_id,
+            status=status,
             jobId=self.jobId,
+            languageCode=self.get_language_code(),
             sourceFile=self.sourceFile,
             mediaFormat=self.get_media_format(),
         )
@@ -205,32 +204,20 @@ class TranscribeJobsUpdate:
         }
 
 
-def change_batch_id(
-    batch_id: str, requests: Iterable[TranscribeJobRequest]
-) -> List[TranscribeJobRequest]:
-    result = [TranscribeJobRequest(**r.to_dict()) for r in requests]
-    for r in result:
-        r.batchId = batch_id or r.batchId
-    return result
-
-
 def copy_shallow(r: TranscribeBatchResult) -> TranscribeBatchResult:
     return TranscribeBatchResult(
         transcribeJobsById={k: v for k, v in r.transcribeJobsById.items()}
     )
 
 
+def requests_to_job_batch(
+    batch_id: str, requests: Iterable[TranscribeJobRequest]
+) -> List[TranscribeJob]:
+    return [r.to_job(batch_id) for r in requests]
+
+
 def transcribe_jobs_to_result(jobs: Iterable[TranscribeJob]) -> TranscribeBatchResult:
     return TranscribeBatchResult(transcribeJobsById={j.get_fq_id(): j for j in jobs})
-
-
-def transcribe_requests_to_result(
-    transcribe_requests: Iterable[TranscribeJobRequest],
-    initial_status: TranscribeJobStatus = TranscribeJobStatus.NONE,
-) -> TranscribeBatchResult:
-    return TranscribeBatchResult(
-        transcribeJobsById={r.get_fq_id(): r.to_job() for r in transcribe_requests}
-    )
 
 
 class TranscriptionService(ABC):
