@@ -6,10 +6,13 @@ from importlib import import_module
 import os
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 
-import pytest
-
-# we want to have pytest assert introspection in the helpers
-pytest.register_assert_rewrite("transcribe.mock")
+# if in a dev/pytest-enabled env...
+try:
+    import pytest
+    # we want to have pytest assert introspection in the helpers
+    pytest.register_assert_rewrite("transcribe.mock")
+except ImportError:
+    pass
 
 
 def require_env(n: str, v: str = "") -> str:
