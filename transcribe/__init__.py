@@ -9,6 +9,7 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 # if in a dev/pytest-enabled env...
 try:
     import pytest
+
     # we want to have pytest assert introspection in the helpers
     pytest.register_assert_rewrite("transcribe.mock")
 except ImportError:
@@ -163,7 +164,9 @@ class TranscribeBatchResult:
         error: str = "",
     ) -> bool:
         if id not in self.transcribeJobsById:
-            raise Exception(f"update for untracked transcribe job id '{id}'")
+            raise Exception(
+                f"update for untracked transcribe job id '{id}' (known ids={sorted(self.transcribeJobsById.keys())})"
+            )
         job_cur = self.transcribeJobsById.get(id)
         assert job_cur is not None
         if job_cur.status == status:
@@ -200,6 +203,15 @@ class TranscribeJobsUpdate:
             "result": self.result.to_dict(),
             "idsUpdated": [i for i in self.idsUpdated],
         }
+
+
+def change_batch_id(
+    batch_id: str, requests: Iterable[TranscribeJobRequest]
+) -> List[TranscribeJobRequest]:
+    result = [TranscribeJobRequest(**r.to_dict()) for r in requests]
+    for r in result:
+        r.batchId = batch_id or r.batchId
+    return result
 
 
 def copy_shallow(r: TranscribeBatchResult) -> TranscribeBatchResult:
