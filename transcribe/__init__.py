@@ -231,7 +231,7 @@ class TranscriptionService(ABC):
         transcribe_requests: Iterable[TranscribeJobRequest],
         batch_id: str = "",
         on_update: Optional[Callable[[TranscribeJobsUpdate], None]] = None,
-        **kwargs
+        **kwargs,
     ) -> TranscribeBatchResult:
         raise NotImplementedError()
 
