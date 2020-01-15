@@ -230,8 +230,8 @@ class TranscriptionService(ABC):
         self,
         transcribe_requests: Iterable[TranscribeJobRequest],
         batch_id: str = "",
-        poll_interval=5,
         on_update: Optional[Callable[[TranscribeJobsUpdate], None]] = None,
+        **kwargs
     ) -> TranscribeBatchResult:
         raise NotImplementedError()
 
