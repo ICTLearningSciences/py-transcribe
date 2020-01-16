@@ -113,6 +113,12 @@ class TranscribeBatchResultSummary:
             [TranscribeJobStatus.SUCCEEDED, TranscribeJobStatus.FAILED]
         )
 
+    def get_count_total(self) -> int:
+        n = 0
+        for c in self.jobCountsByStatus.values():
+            n = n + c
+        return c
+
     def increment(self, status: TranscribeJobStatus) -> int:
         n = self.get_count(status) + 1
         self.jobCountsByStatus[status] = n
