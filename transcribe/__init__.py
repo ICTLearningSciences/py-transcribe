@@ -151,8 +151,12 @@ class TranscribeBatchResult:
             and j.status in [TranscribeJobStatus.SUCCEEDED, TranscribeJobStatus.FAILED]
         )
 
-    def jobs(self) -> Iterable[TranscribeJob]:
-        return self.transcribeJobsById.values()
+    def jobs(self, ids: Iterable[str] = []) -> Iterable[TranscribeJob]:
+        return (
+            [self.transcribeJobsById[id] for id in ids if id in self.transcribeJobsById]
+            if ids
+            else self.transcribeJobsById.values()
+        )
 
     def summary(self) -> TranscribeBatchResultSummary:
         result = TranscribeBatchResultSummary()
@@ -202,6 +206,9 @@ class TranscribeJobsUpdate:
     def __post_init__(self):
         if isinstance(self.result, dict):
             self.result = TranscribeBatchResult(**self.result)
+
+    def jobs_updated(self) -> Iterable[TranscribeJob]:
+        return self.result.jobs(ids=self.idsUpdated)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
