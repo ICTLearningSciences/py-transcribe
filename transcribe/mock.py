@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 import os
 from typing import Any, Callable, Dict, List, Optional
-from unittest.mock import call, Mock
+from unittest.mock import call, _Call, Mock
 
 
 import yaml
@@ -86,7 +86,7 @@ class MockTranscriptions:
     ):
         self.mock_service = Mock()
         self.source_file_root_path = source_file_root_path
-        self.on_update_expected_calls: List[call] = []
+        self.on_update_expected_calls: List[_Call] = []
         self.on_update_spy = Mock()
         mock_init_transcription_service.return_value = self.mock_service
 
