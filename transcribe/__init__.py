@@ -147,6 +147,11 @@ class TranscribeBatchResult:
             for (k, v) in self.transcribeJobsById.items()
         }
 
+    def first(self) -> Optional[TranscribeJob]:
+        for x in self.transcribeJobsById.values():
+            return x
+        return None
+
     def has_any_unresolved(self) -> bool:
         return (
             False
