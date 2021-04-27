@@ -23,18 +23,35 @@ deps-update: $(VENV)
 
 .PHONY: format
 format: $(VENV)
-	$(VENV)/bin/black transcribe
+	$(VENV)/bin/black transcribe tests
+
+LICENSE:
+	@echo "you must have a LICENSE file" 1>&2
+	exit 1
+
+LICENSE_HEADER:
+	@echo "you must have a LICENSE_HEADER file" 1>&2
+	exit 1
+
+.PHONY: license
+license: LICENSE LICENSE_HEADER $(VENV)
+	. $(VENV)/bin/activate \
+		&& python -m licenseheaders -t LICENSE_HEADER -d transcribe $(args)
 
 PHONY: test
 test: $(VENV)
 	$(VENV)/bin/py.test -vv $(args)
 
 .PHONY: test-all
-test-all: test-format test-lint test-types test
+test-all: test-format test-lint test-types test test-license
 
 .PHONY: test-format
 test-format: $(VENV)
-	$(VENV)/bin/black --check transcribe
+	$(VENV)/bin/black --check transcribe tests
+
+.PHONY: test-license
+test-license:
+	args="--check" $(MAKE) license
 
 .PHONY: test-lint
 test-lint: $(VENV)

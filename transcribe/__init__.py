@@ -1,10 +1,16 @@
+#
+# This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved.
+# Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
+#
+# The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
+#
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
 import enum
 from importlib import import_module
-
 import os
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
+import uuid
 
 # if in a dev/pytest-enabled env...
 try:
@@ -35,10 +41,10 @@ class TranscribeJobStatus(enum.Enum):
 
 @dataclass
 class TranscribeJob:
-    batchId: str
     jobId: str
     sourceFile: str
     mediaFormat: str
+    batchId: str = ""
     languageCode: str = "en-US"
     status: TranscribeJobStatus = TranscribeJobStatus.NONE
     transcript: str = ""
@@ -51,7 +57,7 @@ class TranscribeJob:
             self.status = TranscribeJobStatus[str(self.status)]
 
     def get_fq_id(self) -> str:
-        return f"{self.batchId}-{self.jobId}"
+        return f"{self.batchId}-{self.jobId}" if self.batchId else self.jobId
 
     def is_resolved(self) -> bool:
         return bool(
@@ -64,10 +70,16 @@ class TranscribeJob:
 
 @dataclass
 class TranscribeJobRequest:
-    jobId: str
     sourceFile: str
+    jobId: str = ""
     mediaFormat: str = ""
     languageCode: str = "en-US"
+
+    def __post_init__(self):
+        self.jobId = (
+            self.jobId
+            or f"{os.path.splitext(os.path.basename(self.sourceFile))[0]}-{uuid.uuid4()}"
+        )
 
     def get_language_code(self, default_language_code: str = "en-US") -> str:
         return self.languageCode or default_language_code
@@ -79,7 +91,7 @@ class TranscribeJobRequest:
         return asdict(self)
 
     def to_job(
-        self, batch_id: str, status: TranscribeJobStatus = TranscribeJobStatus.NONE
+        self, batch_id: str = "", status: TranscribeJobStatus = TranscribeJobStatus.NONE
     ) -> TranscribeJob:
         return TranscribeJob(
             batchId=batch_id,
@@ -134,6 +146,11 @@ class TranscribeBatchResult:
             k: v if isinstance(v, TranscribeJob) else TranscribeJob(**v)
             for (k, v) in self.transcribeJobsById.items()
         }
+
+    def first(self) -> Optional[TranscribeJob]:
+        for x in self.transcribeJobsById.values():
+            return x
+        return None
 
     def has_any_unresolved(self) -> bool:
         return (

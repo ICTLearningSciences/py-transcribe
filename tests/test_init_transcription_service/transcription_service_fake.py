@@ -1,5 +1,11 @@
 from typing import Any, Callable, Dict, List, Optional
-from transcribe import register_transcription_service_factory, TranscribeBatchResult, TranscribeJobRequest, TranscribeJobsUpdate, TranscriptionService
+from transcribe import (
+    register_transcription_service_factory,
+    TranscribeBatchResult,
+    TranscribeJobRequest,
+    TranscribeJobsUpdate,
+    TranscriptionService,
+)
 from unittest.mock import Mock
 
 
@@ -24,8 +30,12 @@ class FakeTranscriptionService(TranscriptionService):
         poll_interval=5,
         on_update: Optional[Callable[[TranscribeJobsUpdate], None]] = None,
     ) -> TranscribeBatchResult:
-        self._transcribe_mock(transcribe_requests, batch_id=batch_id,
-                              poll_interval=poll_interval, on_update=on_update)
+        self._transcribe_mock(
+            transcribe_requests,
+            batch_id=batch_id,
+            poll_interval=poll_interval,
+            on_update=on_update,
+        )
 
 
 def __factory() -> TranscriptionService:
@@ -33,4 +43,5 @@ def __factory() -> TranscriptionService:
 
 
 register_transcription_service_factory(
-    "tests.test_init_transcription_service.transcription_service_fake", __factory)
+    "tests.test_init_transcription_service.transcription_service_fake", __factory
+)

@@ -20,7 +20,13 @@ transcribe @ git+https://github.com/ictlearningsciences/py-transcribe.git@{relea
 
 ## Usage
 
-Assuming you have an implementation of py-transcribe installed, you need to configure the implementation. Assume we're using module `transcribe_aws`, you can configure that one of two ways:
+You first need to install some concrete implementation of py-transcribe. If you are using AWS, then you can install `transcribe-aws` like this:
+
+```bash
+pip install git+https://github.com/ictlearningsciences/py-transcribe-aws.git@{FILL_IN_A_RELEASE_TAG}#egg=transcribe
+```
+
+...once the implementation is installed, you can configure that one of two ways:
 
 ### Setting the implementation module path
 
@@ -74,7 +80,7 @@ for j in result.jobs():
 
 ### Handling updates on large/long-running batch jobs
 
-The main transcribe method is synchronous to hide the async/polling-based complexity of most transcribe services. But for any non-trivial batch of transcriptions, you probably do want to recieve periodic updates, for example to save any completed transcriptions. You can do that by passing an `on_update` callback as follows:
+The main transcribe method is synchronous to hide the async/polling-based complexity of most transcribe services. But for any non-trivial batch of transcriptions, you probably do want to receive periodic updates, for example to save any completed transcriptions. You can do that by passing an `on_update` callback as follows:
 
 ```python
 from transcribe import (
