@@ -52,7 +52,7 @@ class TranscribeJob:
     info: Dict[str, str] = field(default_factory=lambda: {})
 
     def __post_init__(self):
-        self.transcript = self.transcript
+        self.transcript = self.transcript or ""
         if isinstance(self.status, str):
             self.status = TranscribeJobStatus[str(self.status)]
 
