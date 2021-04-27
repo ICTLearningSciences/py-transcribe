@@ -41,10 +41,10 @@ class TranscribeJobStatus(enum.Enum):
 
 @dataclass
 class TranscribeJob:
-    batchId: str
     jobId: str
     sourceFile: str
     mediaFormat: str
+    batchId: str = ""
     languageCode: str = "en-US"
     status: TranscribeJobStatus = TranscribeJobStatus.NONE
     transcript: str = ""
@@ -57,7 +57,7 @@ class TranscribeJob:
             self.status = TranscribeJobStatus[str(self.status)]
 
     def get_fq_id(self) -> str:
-        return f"{self.batchId}-{self.jobId}"
+        return f"{self.batchId}-{self.jobId}" if self.batchId else self.jobId
 
     def is_resolved(self) -> bool:
         return bool(
@@ -91,7 +91,7 @@ class TranscribeJobRequest:
         return asdict(self)
 
     def to_job(
-        self, batch_id: str, status: TranscribeJobStatus = TranscribeJobStatus.NONE
+        self, batch_id: str = "", status: TranscribeJobStatus = TranscribeJobStatus.NONE
     ) -> TranscribeJob:
         return TranscribeJob(
             batchId=batch_id,
