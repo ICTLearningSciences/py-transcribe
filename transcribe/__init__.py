@@ -8,9 +8,9 @@ from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
 import enum
 from importlib import import_module
-
 import os
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
+import uuid
 
 # if in a dev/pytest-enabled env...
 try:
@@ -52,7 +52,7 @@ class TranscribeJob:
     info: Dict[str, str] = field(default_factory=lambda: {})
 
     def __post_init__(self):
-        self.transcript = self.transcript or ""
+        self.transcript = self.transcript
         if isinstance(self.status, str):
             self.status = TranscribeJobStatus[str(self.status)]
 
@@ -70,10 +70,16 @@ class TranscribeJob:
 
 @dataclass
 class TranscribeJobRequest:
-    jobId: str
     sourceFile: str
+    jobId: str = ""
     mediaFormat: str = ""
     languageCode: str = "en-US"
+
+    def __post_init__(self):
+        self.jobId = (
+            self.jobId
+            or f"{os.path.splitext(os.path.basename(self.sourceFile))[0]}-{uuid.uuid4()}"
+        )
 
     def get_language_code(self, default_language_code: str = "en-US") -> str:
         return self.languageCode or default_language_code

@@ -23,7 +23,7 @@ deps-update: $(VENV)
 
 .PHONY: format
 format: $(VENV)
-	$(VENV)/bin/black transcribe
+	$(VENV)/bin/black transcribe tests
 
 LICENSE:
 	@echo "you must have a LICENSE file" 1>&2
@@ -47,7 +47,7 @@ test-all: test-format test-lint test-types test test-license
 
 .PHONY: test-format
 test-format: $(VENV)
-	$(VENV)/bin/black --check transcribe
+	$(VENV)/bin/black --check transcribe tests
 
 .PHONY: test-license
 test-license:
