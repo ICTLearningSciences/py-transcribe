@@ -21,6 +21,7 @@ from transcribe import (
     TranscribeBatchResult,
     TranscribeJob,
     TranscribeJobRequest,
+    TranscribeJobStatus,
     TranscribeJobsUpdate,
 )
 
@@ -37,10 +38,31 @@ def yaml_load(from_path: str) -> Dict[str, Any]:
 
 
 @dataclass
+class MockTranscribeJob:
+    request: TranscribeJobRequest
+    error: str = ""
+    info: Dict[str, str] = field(default_factory=dict)
+    status: TranscribeJobStatus = TranscribeJobStatus.SUCCEEDED
+    transcript: str = ""
+
+    def add_result(self, result: TranscribeBatchResult) -> TranscribeBatchResult:
+        job = self.request.to_job()
+        result.transcribeJobsById[job.get_fq_id()] = job
+        result.update_job(
+            job.get_fq_id(),
+            status=self.status,
+            info=self.info,
+            transcript=self.transcript,
+            error=self.error,
+        )
+        return result
+
+
+@dataclass
 class MockTranscribeCallFixture:
     result: TranscribeBatchResult
-    requests: List[TranscribeJobRequest] = field(default_factory=lambda: [])
-    updates: List[TranscribeJobsUpdate] = field(default_factory=lambda: [])
+    requests: List[TranscribeJobRequest] = field(default_factory=list)
+    updates: List[TranscribeJobsUpdate] = field(default_factory=list)
 
     def __post_init__(self):
         self.requests = [
@@ -109,6 +131,14 @@ class MockTranscriptions:
             self.on_update_spy(update)
 
         return _on_update
+
+    def mock_transcribe_result(self, mock_jobs: List[MockTranscribeJob]) -> None:
+        result = TranscribeBatchResult()
+        for j in mock_jobs:
+            j.add_result(result)
+        self.mock_transcribe_result_and_callbacks(
+            MockTranscribeCallFixture(result=result)
+        )
 
     def mock_transcribe_result_and_callbacks(
         self, mock_transcribe_call: MockTranscribeCallFixture
