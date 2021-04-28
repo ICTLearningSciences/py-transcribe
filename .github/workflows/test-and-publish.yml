@@ -37,7 +37,7 @@ jobs:
     needs:
       - publish-check
       - test
-    if: needs.publish-check.outputs.is_release || github.ref == 'refs/heads/main'
+    if: needs.publish-check.outputs.is_release
     steps:
       - uses: actions/checkout@v2
       - name: Set version
