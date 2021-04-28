@@ -1,21 +1,13 @@
 # py-transcribe
 
-Framework for synchronous batch text-to-speech transcription with backend services such as AWS, Watson, etc.
+Implementation-agnostic framework for synchronous batch text-to-speech transcription with backend services such as AWS, Watson, etc.
 
 This module itself does NOT include a full implementation or an integration with any transcription service. The intention instead is that you include a specific implementation in your project. For example, for AWS Transcribe, use (py-transcribe-aws)[https://github.com/ICTLearningSciences/py-transcribe-aws]
 
 ## Python Installation
 
-With pip
-
 ```
-pip install git+https://github.com/ictlearningsciences/py-transcribe.git@{release-tag}#egg=transcribe
-```
-
-...in a pip `requirements.txt` use this syntax:
-
-```
-transcribe @ git+https://github.com/ictlearningsciences/py-transcribe.git@{release-tag}#egg=transcribe
+pip install py-transcribe
 ```
 
 ## Usage
@@ -23,7 +15,7 @@ transcribe @ git+https://github.com/ictlearningsciences/py-transcribe.git@{relea
 You first need to install some concrete implementation of py-transcribe. If you are using AWS, then you can install `transcribe-aws` like this:
 
 ```bash
-pip install git+https://github.com/ictlearningsciences/py-transcribe-aws.git@{FILL_IN_A_RELEASE_TAG}#egg=transcribe
+pip install py-transcribe-aws
 ```
 
 ...once the implementation is installed, you can configure that one of two ways:
