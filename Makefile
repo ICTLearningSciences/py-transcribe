@@ -37,6 +37,7 @@ LICENSE_HEADER:
 license: LICENSE LICENSE_HEADER $(VENV)
 	. $(VENV)/bin/activate \
 		&& python -m licenseheaders -t LICENSE_HEADER -d transcribe $(args)
+	$(MAKE) format
 
 PHONY: test
 test: $(VENV)
