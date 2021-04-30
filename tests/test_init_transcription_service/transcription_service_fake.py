@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, Iterable, Optional
 from transcribe import (
     register_transcription_service_factory,
     TranscribeBatchResult,
@@ -20,20 +20,20 @@ class FakeTranscriptionService(TranscriptionService):
     def get_transcribe_mock(self) -> Mock:
         return self._transcribe_mock
 
-    def init_service(self, config: Dict[str, Any] = {}) -> None:
+    def init_service(self, config: Dict[str, Any] = {}, **kwargs) -> None:
         self._init_service_mock(config)
 
     def transcribe(
         self,
-        transcribe_requests: List[TranscribeJobRequest],
+        transcribe_requests: Iterable[TranscribeJobRequest],
         batch_id: str = "",
-        poll_interval=5,
         on_update: Optional[Callable[[TranscribeJobsUpdate], None]] = None,
+        **kwargs,
     ) -> TranscribeBatchResult:
-        self._transcribe_mock(
+        return self._transcribe_mock(
             transcribe_requests,
             batch_id=batch_id,
-            poll_interval=poll_interval,
+            poll_interval=kwargs.get("poll_interval", 5),
             on_update=on_update,
         )
 
