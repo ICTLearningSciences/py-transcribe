@@ -29,6 +29,10 @@ def require_env(n: str, v: str = "") -> str:
     return v
 
 
+def next_job_id() -> str:
+    return str(uuid.uuid4())
+
+
 class TranscribeJobStatus(enum.Enum):
     NONE = 0
     UPLOADING = 1
@@ -76,10 +80,7 @@ class TranscribeJobRequest:
     languageCode: str = "en-US"
 
     def __post_init__(self):
-        self.jobId = (
-            self.jobId
-            or f"{os.path.splitext(os.path.basename(self.sourceFile))[0]}-{uuid.uuid4()}"
-        )
+        self.jobId = self.jobId or next_job_id()
 
     def get_language_code(self, default_language_code: str = "en-US") -> str:
         return self.languageCode or default_language_code
