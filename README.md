@@ -52,17 +52,14 @@ from transcribe import (
 
 
 service = init_transcription_service()
-requests = [
+result = service.transcribe([
     TranscribeJobRequest(
-        jobId="j1",
         sourceFile="/some/path/j1.wav"
     ),
     TranscribeJobRequest(
-        jobId="j2",
         sourceFile="/some/other/path/j2.wav"
     )
-]
-result = service.transcribe(requests)
+])
 for j in result.jobs():
     if j.status == TranscribeJoStatus.SUCCEEDED:
         print(j.transcript)
@@ -84,16 +81,6 @@ from transcribe import (
 
 
 service = init_transcription_service()
-requests = [
-    TranscribeJobRequest(
-        jobId="j1",
-        sourceFile="/some/path/j1.wav"
-    ),
-    TranscribeJobRequest(
-        jobId="j2",
-        sourceFile="/some/other/path/j2.wav"
-    )
-]
 
 
 def _on_update(u: TranscribeJobsUpdate) -> None:
@@ -104,7 +91,14 @@ def _on_update(u: TranscribeJobsUpdate) -> None:
             print(j.error)
 
 result = service.transcribe(
-    requests,
+    [
+        TranscribeJobRequest(
+            sourceFile="/some/path/j1.wav"
+        ),
+        TranscribeJobRequest(
+            sourceFile="/some/other/path/j2.wav"
+        )
+    ],
     on_update=_on_update
 )
 ```

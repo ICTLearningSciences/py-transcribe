@@ -13,6 +13,7 @@ from transcribe.mock import MockTranscribeJob, MockTranscriptions
         (
             [
                 MockTranscribeJob(
+                    batch_id="b1",
                     request=transcribe.TranscribeJobRequest(
                         jobId="j1", sourceFile="/fake/audio1.mp3"
                     ),
@@ -21,7 +22,8 @@ from transcribe.mock import MockTranscribeJob, MockTranscriptions
             ],
             transcribe.TranscribeBatchResult(
                 transcribeJobsById={
-                    "j1": transcribe.TranscribeJob(
+                    "b1-j1": transcribe.TranscribeJob(
+                        batchId="b1",
                         jobId="j1",
                         mediaFormat="mp3",
                         sourceFile="/fake/audio1.mp3",

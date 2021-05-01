@@ -37,6 +37,7 @@ LICENSE_HEADER:
 license: LICENSE LICENSE_HEADER $(VENV)
 	. $(VENV)/bin/activate \
 		&& python -m licenseheaders -t LICENSE_HEADER -d transcribe $(args)
+	$(MAKE) format
 
 PHONY: test
 test: $(VENV)
@@ -59,7 +60,7 @@ test-lint: $(VENV)
 
 .PHONY: test-types
 test-types: $(VENV)
-	. $(VENV)/bin/activate && mypy transcribe
+	. $(VENV)/bin/activate && mypy transcribe tests
 
 $(WATSON_CREDENTIALS):
 	@echo "SET_USERNAME_HERE" > $(WATSON_CREDENTIALS)

@@ -39,6 +39,7 @@ def yaml_load(from_path: str) -> Dict[str, Any]:
 
 @dataclass
 class MockTranscribeJob:
+    batch_id: str
     request: TranscribeJobRequest
     error: str = ""
     info: Dict[str, str] = field(default_factory=dict)
@@ -46,7 +47,7 @@ class MockTranscribeJob:
     transcript: str = ""
 
     def add_result(self, result: TranscribeBatchResult) -> TranscribeBatchResult:
-        job = self.request.to_job()
+        job = self.request.to_job(self.batch_id)
         result.transcribeJobsById[job.get_fq_id()] = job
         result.update_job(
             job.get_fq_id(),
@@ -157,8 +158,8 @@ class MockTranscriptions:
         def _transcribe(
             transcribe_requests: List[TranscribeJobRequest],
             batch_id: str = "",
-            poll_interval=5,
             on_update: Optional[Callable[[TranscribeJobsUpdate], None]] = None,
+            poll_interval=5,
         ) -> TranscribeBatchResult:
             if on_update:
                 for u in mock_transcribe_call.updates:

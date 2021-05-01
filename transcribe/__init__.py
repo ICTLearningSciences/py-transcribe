@@ -29,6 +29,10 @@ def require_env(n: str, v: str = "") -> str:
     return v
 
 
+def next_job_id() -> str:
+    return str(uuid.uuid4())
+
+
 class TranscribeJobStatus(enum.Enum):
     NONE = 0
     UPLOADING = 1
@@ -41,10 +45,10 @@ class TranscribeJobStatus(enum.Enum):
 
 @dataclass
 class TranscribeJob:
+    batchId: str
     jobId: str
     sourceFile: str
     mediaFormat: str
-    batchId: str = ""
     languageCode: str = "en-US"
     status: TranscribeJobStatus = TranscribeJobStatus.NONE
     transcript: str = ""
@@ -57,7 +61,7 @@ class TranscribeJob:
             self.status = TranscribeJobStatus[str(self.status)]
 
     def get_fq_id(self) -> str:
-        return f"{self.batchId}-{self.jobId}" if self.batchId else self.jobId
+        return f"{self.batchId}-{self.jobId}"
 
     def is_resolved(self) -> bool:
         return bool(
@@ -76,10 +80,7 @@ class TranscribeJobRequest:
     languageCode: str = "en-US"
 
     def __post_init__(self):
-        self.jobId = (
-            self.jobId
-            or f"{os.path.splitext(os.path.basename(self.sourceFile))[0]}-{uuid.uuid4()}"
-        )
+        self.jobId = self.jobId or next_job_id()
 
     def get_language_code(self, default_language_code: str = "en-US") -> str:
         return self.languageCode or default_language_code
@@ -91,7 +92,7 @@ class TranscribeJobRequest:
         return asdict(self)
 
     def to_job(
-        self, batch_id: str = "", status: TranscribeJobStatus = TranscribeJobStatus.NONE
+        self, batch_id: str, status: TranscribeJobStatus = TranscribeJobStatus.NONE
     ) -> TranscribeJob:
         return TranscribeJob(
             batchId=batch_id,
