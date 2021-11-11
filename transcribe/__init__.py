@@ -103,7 +103,7 @@ class TranscribeJobRequest:
             mediaFormat=self.get_media_format(),
         )
 
-
+ 
 @dataclass
 class TranscribeBatchResultSummary:
     jobCountsByStatus: Dict[TranscribeJobStatus, int] = field(
