@@ -53,7 +53,7 @@ class TranscribeJob:
     status: TranscribeJobStatus = TranscribeJobStatus.NONE
     transcript: str = ""
     generateSubtitles: bool = False
-    subtitles: List[str] = field(default_factory=list)
+    subtitles: str = ""
     error: str = ""
     info: Dict[str, str] = field(default_factory=lambda: {})
 
@@ -173,6 +173,12 @@ class TranscribeBatchResult:
             and j.status in [TranscribeJobStatus.SUCCEEDED, TranscribeJobStatus.FAILED]
         )
 
+    def job_generates_subtitles(self, id: str, status: TranscribeJobStatus) -> bool:
+        if id not in id in self.transcribeJobsById:
+            return False
+        j = self.transcribeJobsById.get(id)
+        return bool(j and j.generateSubtitles)
+
     def jobs(self, ids: Iterable[str] = []) -> Iterable[TranscribeJob]:
         return (
             [self.transcribeJobsById[id] for id in ids if id in self.transcribeJobsById]
@@ -193,7 +199,7 @@ class TranscribeBatchResult:
         info: Dict[str, str] = {},
         transcript: str = "",
         error: str = "",
-        subtitles: List[str] = [],
+        subtitles: str = "",
     ) -> bool:
         if id not in self.transcribeJobsById:
             raise Exception(
@@ -206,7 +212,7 @@ class TranscribeBatchResult:
         job_updated = TranscribeJob(**job_cur.to_dict())
         job_updated.status = status or TranscribeJobStatus.NONE
         job_updated.transcript = transcript or ""
-        job_updated.subtitles = subtitles or []
+        job_updated.subtitles = subtitles or ""
         job_updated.error = error or ""
         job_updated.info = info or {}
         self.transcribeJobsById[id] = job_updated
