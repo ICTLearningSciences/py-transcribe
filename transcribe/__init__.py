@@ -107,7 +107,7 @@ class TranscribeJobRequest:
             generateSubtitles=self.generateSubtitles,
         )
 
- 
+
 @dataclass
 class TranscribeBatchResultSummary:
     jobCountsByStatus: Dict[TranscribeJobStatus, int] = field(
