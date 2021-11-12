@@ -52,6 +52,8 @@ class TranscribeJob:
     languageCode: str = "en-US"
     status: TranscribeJobStatus = TranscribeJobStatus.NONE
     transcript: str = ""
+    generateSubtitles: bool = False
+    subtitles: List[str] = field(default_factory=list)
     error: str = ""
     info: Dict[str, str] = field(default_factory=lambda: {})
 
@@ -78,6 +80,7 @@ class TranscribeJobRequest:
     jobId: str = ""
     mediaFormat: str = ""
     languageCode: str = "en-US"
+    generateSubtitles: bool = False
 
     def __post_init__(self):
         self.jobId = self.jobId or next_job_id()
@@ -101,6 +104,7 @@ class TranscribeJobRequest:
             languageCode=self.get_language_code(),
             sourceFile=self.sourceFile,
             mediaFormat=self.get_media_format(),
+            generateSubtitles=self.generateSubtitles,
         )
 
  
@@ -189,6 +193,7 @@ class TranscribeBatchResult:
         info: Dict[str, str] = {},
         transcript: str = "",
         error: str = "",
+        subtitles: List[str] = [],
     ) -> bool:
         if id not in self.transcribeJobsById:
             raise Exception(
@@ -201,6 +206,7 @@ class TranscribeBatchResult:
         job_updated = TranscribeJob(**job_cur.to_dict())
         job_updated.status = status or TranscribeJobStatus.NONE
         job_updated.transcript = transcript or ""
+        job_updated.subtitles = subtitles or []
         job_updated.error = error or ""
         job_updated.info = info or {}
         self.transcribeJobsById[id] = job_updated
