@@ -6,6 +6,8 @@ htmlcov
 QuestionAnswerLog.csv
 .coverage
 .coverage.*
+.pypirc
+.pypirc.*
 .log
 .mypy_cache
 .pytest_cache
@@ -18,4 +20,3 @@ QuestionAnswerLog.csv
 */temp
 */build
 */videos
-
