@@ -45,6 +45,7 @@ class MockTranscribeJob:
     info: Dict[str, str] = field(default_factory=dict)
     status: TranscribeJobStatus = TranscribeJobStatus.SUCCEEDED
     transcript: str = ""
+    subtitles: str = ""
 
     def add_result(self, result: TranscribeBatchResult) -> TranscribeBatchResult:
         job = self.request.to_job(self.batch_id)
@@ -54,6 +55,7 @@ class MockTranscribeJob:
             status=self.status,
             info=self.info,
             transcript=self.transcript,
+            subtitles=self.subtitles,
             error=self.error,
         )
         return result
